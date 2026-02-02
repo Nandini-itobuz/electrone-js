@@ -11,6 +11,7 @@ import {
   registerGlobalShortcuts,
   unregisterGlobalShortcuts,
 } from "./shortcuts";
+import { autoUpdaterConfig } from "./updater";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -89,6 +90,11 @@ app.whenReady().then(async () => {
 
   // Register global shortcuts
   registerGlobalShortcuts(win);
+
+  // Setup auto-updater (only in production)
+  if (!VITE_DEV_SERVER_URL) {
+    autoUpdaterConfig(win);
+  }
 });
 
 // Cleanup shortcuts when app is quitting

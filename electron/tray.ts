@@ -1,4 +1,4 @@
-import { app, BrowserWindow, Tray, Menu, nativeImage, screen, desktopCapturer, dialog } from "electron";
+import { app, BrowserWindow, Tray, Menu, nativeImage } from "electron";
 import path from "node:path";
 import fs from "node:fs";
 
@@ -57,13 +57,6 @@ export class TrayManager {
       },
       { type: "separator" },
       {
-        label: "Take Screenshot",
-        click: async () => {
-          await this.takeScreenshot();
-        },
-      },
-      { type: "separator" },
-      {
         label: "Dashboard",
         click: () => {
           this.window.show();
@@ -108,39 +101,6 @@ export class TrayManager {
         this.window.show();
         this.window.focus();
       });
-    }
-  }
-
-  private async takeScreenshot(): Promise<void> {
-    try {
-      const primaryDisplay = screen.getPrimaryDisplay();
-      const { width, height } = primaryDisplay.workAreaSize;
-      
-      const sources = await desktopCapturer.getSources({
-        types: ["screen"],
-        thumbnailSize: { width, height },
-      });
-
-      if (sources.length === 0) {
-        throw new Error("No screen sources available");
-      }
-
-      // Get the first screen and convert to PNG buffer
-      const source = sources[0];
-      const pngBuffer = source.thumbnail.toPNG();
-      
-      // Show save dialog
-      const result = await dialog.showSaveDialog(this.window, {
-        defaultPath: `screenshot-${Date.now()}.png`,
-        filters: [{ name: "Images", extensions: ["png"] }],
-      });
-
-      if (!result.canceled && result.filePath) {
-        fs.writeFileSync(result.filePath, pngBuffer);
-        console.log("Screenshot saved:", result.filePath);
-      }
-    } catch (error) {
-      console.error("Screenshot capture error:", error);
     }
   }
 

@@ -8,6 +8,11 @@
     output: "release/${version}",
   },
   files: ["dist", "dist-electron"],
+  publish: {
+    provider: "github",
+    owner: "Nandini-itobuz",
+    repo: "electrone-js",
+  },
   mac: {
     target: ["dmg"],
     artifactName: "${productName}-Mac-${version}-Installer.${ext}",
@@ -50,8 +55,6 @@
     perMachine: false,
     allowToChangeInstallationDirectory: true,
     deleteAppDataOnUninstall: false,
-    installerIcon: "public/electron-vite.svg",
-    uninstallerIcon: "public/electron-vite.svg",
     createDesktopShortcut: true,
     createStartMenuShortcut: true,
   },

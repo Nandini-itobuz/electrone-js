@@ -82,7 +82,7 @@ export function DashboardPage() {
           </div>
 
           <div
-            className={{
+            style={{
               display: "flex",
               justifyContent: "center",
               gap: "10px",
