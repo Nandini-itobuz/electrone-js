@@ -1,0 +1,63 @@
+// @see - https://www.electron.build/configuration/configuration
+{
+  $schema: "https://raw.githubusercontent.com/electron-userland/electron-builder/master/packages/app-builder-lib/scheme.json",
+  appId: "demo",
+  asar: true,
+  productName: "demo",
+  directories: {
+    output: "release/${version}",
+  },
+  files: ["dist", "dist-electron"],
+  mac: {
+    target: ["dmg"],
+    artifactName: "${productName}-Mac-${version}-Installer.${ext}",
+    entitlements: "entitlements.mac.plist",
+    entitlementsInherit: "entitlements.mac.plist",
+    hardenedRuntime: true,
+    gatekeeperAssess: false,
+    extendInfo: {
+      NSCameraUsageDescription: "This app needs access to the camera to take profile pictures.",
+      NSMicrophoneUsageDescription: "This app may need access to the microphone.",
+    },
+  },
+  dmg: {
+    contents: [
+      {
+        x: 130,
+        y: 220,
+      },
+      {
+        x: 410,
+        y: 220,
+        type: "link",
+        path: "/Applications",
+      },
+    ],
+    title: "${productName} ${version}",
+    icon: "public/electron-vite.svg",
+  },
+  win: {
+    target: [
+      {
+        target: "nsis",
+        arch: ["x64"],
+      },
+    ],
+    artifactName: "${productName}-Windows-${version}-Setup.${ext}",
+  },
+  nsis: {
+    oneClick: false,
+    perMachine: false,
+    allowToChangeInstallationDirectory: true,
+    deleteAppDataOnUninstall: false,
+    installerIcon: "public/electron-vite.svg",
+    uninstallerIcon: "public/electron-vite.svg",
+    createDesktopShortcut: true,
+    createStartMenuShortcut: true,
+  },
+  linux: {
+    target: ["AppImage"],
+    artifactName: "${productName}-Linux-${version}.${ext}",
+    category: "Utility",
+  },
+}
