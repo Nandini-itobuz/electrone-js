@@ -110,17 +110,74 @@ export function setupIpcHandlers(
 
   // Screenshot save
   ipcMain.handle("screenshot:save", async (_, dataUrl: string) => {
-    const result = await dialog.showSaveDialog(win, {
-      defaultPath: `screenshot-${Date.now()}.png`,
-      filters: [{ name: "Images", extensions: ["png"] }],
+    const result = await dialog.showMessageBox(win, {
+      type: "question",
+      title: "Save screenshot?",
+      message: `Are you sure you want to save this screenshot?`,
+      buttons: ["Yes", "Later"],
+      defaultId: 0,
     });
 
-    if (!result.canceled && result.filePath) {
+    if (result.response === 0) {
+      // Create screenshots directory if it doesn't exist
+      const screenshotsDir = path.join(storagePath, "screenshots");
+      if (!fs.existsSync(screenshotsDir)) {
+        fs.mkdirSync(screenshotsDir, { recursive: true });
+      }
+
+      // Generate filename with timestamp
+      const filename = `screenshot-${Date.now()}.png`;
+      const fullPath = path.join(screenshotsDir, filename);
+
+      // Decode base64 and save
       const base64Data = dataUrl.replace(/^data:image\/png;base64,/, "");
       const buffer = Buffer.from(base64Data, "base64");
-      fs.writeFileSync(result.filePath, buffer);
-      return result.filePath;
+      fs.writeFileSync(fullPath, buffer);
+
+      return fullPath;
     }
     return null;
+  });
+
+  ipcMain.handle("screenshot:listScreenshot", async () => {
+    const screenshotDir = path.join(storagePath, "screenshots");
+
+    if (!fs.existsSync(screenshotDir)) return [];
+
+    const files = fs.readdirSync(screenshotDir);
+
+    return files
+      .filter((file) => file.endsWith(".png"))
+      .map((file) => ({
+        filename: file,
+        path: `screenshots/${file}`,
+        timestamp: parseInt(file.match(/screenshot-(\d+)\.png/)?.[1] || "0"),
+        fullPath: path.join(screenshotDir, file),
+      }))
+      .sort((a, b) => b.timestamp - a.timestamp); // Newest first
+  });
+
+  // Get screenshot image data
+  ipcMain.handle("screenshot:getImage", (_, filename: string) => {
+    const screenshotDir = path.join(storagePath, "screenshots");
+    const fullPath = path.join(screenshotDir, filename);
+
+    if (!fs.existsSync(fullPath)) return null;
+
+    const imageBuffer = fs.readFileSync(fullPath);
+    const base64 = imageBuffer.toString("base64");
+    return `data:image/png;base64,${base64}`;
+  });
+
+  // Delete screenshot
+  ipcMain.handle("screenshot:delete", (_, filename: string) => {
+    const screenshotDir = path.join(storagePath, "screenshots");
+    const fullPath = path.join(screenshotDir, filename);
+
+    if (fs.existsSync(fullPath)) {
+      fs.unlinkSync(fullPath);
+      return true;
+    }
+    return false;
   });
 }

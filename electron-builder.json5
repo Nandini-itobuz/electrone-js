@@ -14,7 +14,7 @@
     repo: "electrone-js",
   },
   mac: {
-    target: ["dmg"],
+    target: ["dmg", "zip"],
     artifactName: "${productName}-Mac-${version}-Installer.${ext}",
     entitlements: "entitlements.mac.plist",
     entitlementsInherit: "entitlements.mac.plist",

@@ -62,4 +62,9 @@ contextBridge.exposeInMainWorld("electronAPI", {
   captureScreenshot: () => ipcRenderer.invoke("screenshot:capture"),
   saveScreenshot: (dataUrl: string) =>
     ipcRenderer.invoke("screenshot:save", dataUrl),
+  listScreenshots: () => ipcRenderer.invoke("screenshot:listScreenshot"),
+  getScreenshotImage: (filename: string) =>
+    ipcRenderer.invoke("screenshot:getImage", filename),
+  deleteScreenshot: (filename: string) =>
+    ipcRenderer.invoke("screenshot:delete", filename),
 });

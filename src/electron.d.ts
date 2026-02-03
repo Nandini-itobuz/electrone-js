@@ -11,6 +11,16 @@ export interface ElectronAPI {
   showSystemNotification: (title, body) => Promise<string | null>;
   captureScreenshot: () => Promise<string>;
   saveScreenshot: (dataUrl: string) => Promise<string | null>;
+  listScreenshots: () => Promise<
+    Array<{
+      filename: string;
+      path: string;
+      timestamp: number;
+      fullPath: string;
+    }>
+  >;
+  getScreenshotImage: (filename: string) => Promise<string | null>;
+  deleteScreenshot: (filename: string) => Promise<boolean>;
 }
 
 export interface IpcRenderer {
