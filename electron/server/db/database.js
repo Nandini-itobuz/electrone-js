@@ -1,5 +1,6 @@
 import Database from "better-sqlite3";
 import path from "node:path";
+import { Migrator } from "./migrator.js";
 
 let db = null;
 
@@ -28,24 +29,19 @@ export function initializeDatabase(userDataPath) {
     );
   `;
 
+  const migrationTableConfigSQL = `
+    CREATE TABLE IF NOT EXISTS migrations(
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      version INTEGER NOT NULL UNIQUE,
+      name TEXT NOT NULL,
+      executed_at DATETIME DEFAULT CURRENT_TIMESTAMP 
+    );`;
+
   db.exec(createTablesSQL);
+  db.exec(migrationTableConfigSQL);
 
-  // Migration: Add profile_picture column if it doesn't exist
-  try {
-    const tableInfo = db.pragma("table_info(users)");
-    const hasProfilePicture = tableInfo.some(
-      (col) => col.name === "profile_picture",
-    );
-
-    if (!hasProfilePicture) {
-      console.log("Migrating database: Adding profile_picture column...");
-      db.exec("ALTER TABLE users ADD COLUMN profile_picture TEXT");
-      console.log("Migration complete!");
-    }
-  } catch (error) {
-    console.error("Migration error:", error);
-  }
-  console.log("Database initialized at:", DB_PATH);
+  const migrator = new Migrator(db);
+  migrator.runMigrations();
 
   return db;
 }

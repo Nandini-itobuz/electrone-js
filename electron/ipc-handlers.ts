@@ -76,6 +76,31 @@ export function setupIpcHandlers(
     }
   });
 
+  // Save camera photo
+  ipcMain.handle(
+    "file:saveCameraPhoto",
+    async (_, imageData: ArrayBuffer, mimeType: string, userId: number) => {
+      try {
+        // Determine file extension from MIME type
+        let ext = ".jpg";
+        if (mimeType === "image/png") ext = ".png";
+        else if (mimeType === "image/webp") ext = ".webp";
+
+        const filename = `user-${userId}-${Date.now()}${ext}`;
+        const destPath = path.join(profilesPath, filename);
+
+        // Convert ArrayBuffer to Buffer and save
+        const buffer = Buffer.from(imageData);
+        fs.writeFileSync(destPath, buffer);
+
+        return `profiles/${filename}`;
+      } catch (error) {
+        console.error("Error saving camera photo:", error);
+        throw error;
+      }
+    },
+  );
+
   // System notifications
   ipcMain.handle("system-notify", async (_, { title, body }) => {
     const notification = new Notification({ title, body });
